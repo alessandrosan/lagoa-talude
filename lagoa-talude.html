@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Talude 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 0;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 25px;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .control-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .control-group .hint {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 3px;
+            font-style: italic;
+        }
+        
+        .btn-update {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        .btn-update:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-update:active {
+            transform: translateY(0);
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .info-box.error {
+            background: #ffebee;
+            border-left-color: #f44336;
+            color: #c62828;
+        }
+        
+        .viewer {
+            background: #ffffff;
+            position: relative;
+            min-height: 700px;
+            padding: 20px;
+        }
+        
+        #plotly-container {
+            width: 100%;
+            height: 700px;
+        }
+        
+        .stats {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: 13px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            border: 2px solid #667eea;
+        }
+        
+        .stats h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .stats-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .stats-label {
+            display: block;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        
+        .stats-value {
+            display: block;
+            color: #2c3e50;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 968px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                border-right: none;
+                border-bottom: 2px solid #dee2e6;
+            }
+            
+            #plotly-container {
+                height: 500px;
+            }
+            
+            .viewer {
+                min-height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Visualizador de Talude 3D</h1>
+            <p>Calculadora de Volume com Borda Livre - Plotly Interactive</p>
+        </div>
+        
+        <div class="content">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="ladoA">Lado A Nível da Água (m):</label>
+                    <input type="text" id="ladoA" value="4,0">
+                </div>
+                
+                <div class="control-group">
+                    <label for="ladoB">Lado B Nível da Água (m):</label>
+                    <input type="text" id="ladoB" value="4,0">
+                </div>
+                
+                <div class="control-group">
+                    <label for="altura">Altura (m):</label>
+                    <input type="text" id="altura" value="1,0">
+                </div>
+                
+                <div class="control-group">
+                    <label for="proporcao">Proporção (1:X):</label>
+                    <input type="text" id="proporcao" value="2,0">
+                    <div class="hint">Ex: 2 = 1:2 (para cada 1m de altura, reduz 2m no lado)</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="bordaLivre">Borda Livre (m):</label>
+                    <input type="text" id="bordaLivre" value="0,30">
+                    <div class="hint">Altura adicional acima do nível da água</div>
+                </div>
+                
+                <button class="btn-update" onclick="atualizarGrafico()">Atualizar Visualização</button>
+                
+                <div id="infoBox" class="info-box">
+                    Clique em "Atualizar Visualização" para gerar o modelo 3D
+                </div>
+            </div>
+            
+            <div class="viewer">
+                <div class="stats" id="stats" style="display: none;">
+                    <h3>📊 Resultados do Cálculo</h3>
+                    <div class="stats-grid">
+                        <div class="stats-item">
+                            <span class="stats-label">Volume Total (com a borda)</span>
+                            <span class="stats-value" id="volumeTotal">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Volume Principal (sem a borda)</span>
+                            <span class="stats-value" id="volumePrincipal">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Volume da Borda Livre</span>
+                            <span class="stats-value" id="volumeBorda">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Base Inferior (fundo)</span>
+                            <span class="stats-value" id="baseInferior">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Topo no Nível da Água</span>
+                            <span class="stats-value" id="topoSuperior">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Topo Borda Livre</span>
+                            <span class="stats-value" id="topoBorda">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="plotly-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseValue(str) {
+            return parseFloat(str.replace(',', '.'));
+        }
+        
+        function formatNumber(num) {
+            return num.toFixed(2).replace('.', ',');
+        }
+        
+        function calcularBaseInferior(ladoSup, altura, proporcao) {
+            const reducaoTotal = altura * proporcao;
+            const ladoInf = ladoSup - (2 * reducaoTotal);
+            return Math.max(ladoInf, 0.1);
+        }
+        
+        function criarMalha(vertices) {
+            // Criar faces do prisma
+            const faces = [
+                [0, 1, 2], [0, 2, 3], // base inferior
+                [4, 5, 6], [4, 6, 7], // topo superior
+                [0, 1, 5], [0, 5, 4], // frente
+                [1, 2, 6], [1, 6, 5], // direita
+                [2, 3, 7], [2, 7, 6], // trás
+                [3, 0, 4], [3, 4, 7]  // esquerda
+            ];
+            
+            const i = [], j = [], k = [];
+            faces.forEach(face => {
+                i.push(face[0]);
+                j.push(face[1]);
+                k.push(face[2]);
+            });
+            
+            return { i, j, k };
+        }
+        
+        function atualizarGrafico() {
+            try {
+                const aSup = parseValue(document.getElementById('ladoA').value);
+                const bSup = parseValue(document.getElementById('ladoB').value);
+                const h = parseValue(document.getElementById('altura').value);
+                const prop = parseValue(document.getElementById('proporcao').value);
+                const borda = parseValue(document.getElementById('bordaLivre').value);
+                
+                if (aSup <= 0 || bSup <= 0 || h <= 0 || prop < 0 || borda < 0) {
+                    mostrarErro('Erro: Valores devem ser positivos!');
+                    return;
+                }
+                
+                const aInf = calcularBaseInferior(aSup, h, prop);
+                const bInf = calcularBaseInferior(bSup, h, prop);
+                
+                if (aInf <= 0 || bInf <= 0) {
+                    mostrarErro('Erro: Base inferior muito pequena! Reduza a proporção ou altura.');
+                    return;
+                }
+                
+                const aBordaSup = aSup + (2 * borda * prop);
+                const bBordaSup = bSup + (2 * borda * prop);
+                
+                // Calcular volumes
+                const A1 = aInf * bInf;
+                const A2 = aSup * bSup;
+                const volumePrincipal = (h / 3) * (A1 + A2 + Math.sqrt(A1 * A2));
+                
+                let volumeBorda = 0;
+                if (borda > 0) {
+                    const A3 = aBordaSup * bBordaSup;
+                    volumeBorda = (borda / 3) * (A2 + A3 + Math.sqrt(A2 * A3));
+                }
+                
+                const volumeTotal = volumePrincipal + volumeBorda;
+                
+                // Criar geometria do talude principal
+                const verticesPrincipal = {
+                    x: [-aInf/2, aInf/2, aInf/2, -aInf/2, -aSup/2, aSup/2, aSup/2, -aSup/2],
+                    y: [-bInf/2, -bInf/2, bInf/2, bInf/2, -bSup/2, -bSup/2, bSup/2, bSup/2],
+                    z: [0, 0, 0, 0, h, h, h, h]
+                };
+                
+                const malhasPrincipal = criarMalha(verticesPrincipal);
+                
+                const tracePrincipal = {
+                    type: 'mesh3d',
+                    x: verticesPrincipal.x,
+                    y: verticesPrincipal.y,
+                    z: verticesPrincipal.z,
+                    i: malhasPrincipal.i,
+                    j: malhasPrincipal.j,
+                    k: malhasPrincipal.k,
+                    opacity: 0.8,
+                    color: '#0088aa',
+                    flatshading: true,
+                    name: 'Talude Principal',
+                    hovertemplate: 'Talude Principal<br>x: %{x:.2f}m<br>y: %{y:.2f}m<br>z: %{z:.2f}m<extra></extra>'
+                };
+                
+                // Arestas do talude principal
+                const arestas = [
+                    [0,1], [1,2], [2,3], [3,0], // base
+                    [4,5], [5,6], [6,7], [7,4], // topo
+                    [0,4], [1,5], [2,6], [3,7]  // laterais
+                ];
+                
+                const xArestas = [], yArestas = [], zArestas = [];
+                arestas.forEach(([i, j]) => {
+                    xArestas.push(verticesPrincipal.x[i], verticesPrincipal.x[j], null);
+                    yArestas.push(verticesPrincipal.y[i], verticesPrincipal.y[j], null);
+                    zArestas.push(verticesPrincipal.z[i], verticesPrincipal.z[j], null);
+                });
+                
+                const traceArestas = {
+                    type: 'scatter3d',
+                    mode: 'lines',
+                    x: xArestas,
+                    y: yArestas,
+                    z: zArestas,
+                    line: {
+                        color: '#003366',
+                        width: 3
+                    },
+                    hoverinfo: 'skip',
+                    showlegend: false
+                };
+                
+                const data = [tracePrincipal, traceArestas];
+                
+                // Adicionar borda livre se existir
+                if (borda > 0) {
+                    const verticesBorda = {
+                        x: [-aSup/2, aSup/2, aSup/2, -aSup/2, -aBordaSup/2, aBordaSup/2, aBordaSup/2, -aBordaSup/2],
+                        y: [-bSup/2, -bSup/2, bSup/2, bSup/2, -bBordaSup/2, -bBordaSup/2, bBordaSup/2, bBordaSup/2],
+                        z: [h, h, h, h, h+borda, h+borda, h+borda, h+borda]
+                    };
+                    
+                    const malhasBorda = criarMalha(verticesBorda);
+                    
+                    const traceBorda = {
+                        type: 'mesh3d',
+                        x: verticesBorda.x,
+                        y: verticesBorda.y,
+                        z: verticesBorda.z,
+                        i: malhasBorda.i,
+                        j: malhasBorda.j,
+                        k: malhasBorda.k,
+                        opacity: 0.7,
+                        color: '#ffaa00',
+                        flatshading: true,
+                        name: 'Borda Livre',
+                        hovertemplate: 'Borda Livre<br>x: %{x:.2f}m<br>y: %{y:.2f}m<br>z: %{z:.2f}m<extra></extra>'
+                    };
+                    
+                    const xArestasBorda = [], yArestasBorda = [], zArestasBorda = [];
+                    arestas.forEach(([i, j]) => {
+                        xArestasBorda.push(verticesBorda.x[i], verticesBorda.x[j], null);
+                        yArestasBorda.push(verticesBorda.y[i], verticesBorda.y[j], null);
+                        zArestasBorda.push(verticesBorda.z[i], verticesBorda.z[j], null);
+                    });
+                    
+                    const traceArestasBorda = {
+                        type: 'scatter3d',
+                        mode: 'lines',
+                        x: xArestasBorda,
+                        y: yArestasBorda,
+                        z: zArestasBorda,
+                        line: {
+                            color: '#cc6600',
+                            width: 3
+                        },
+                        hoverinfo: 'skip',
+                        showlegend: false
+                    };
+                    
+                    data.push(traceBorda, traceArestasBorda);
+                }
+                
+                // Adicionar anotações para dimensões
+                const annotations = [];
+                
+                const offsetMult = Math.max(aBordaSup, bBordaSup, h + borda) * 0.15;
+                
+                // Dimensão A inferior (base/fundo)
+                annotations.push({
+                    x: 0,
+                    y: -bInf/2 - offsetMult * 0.5,
+                    z: 0,
+                    text: `a (fundo) = ${formatNumber(aInf)}m`,
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#8B0000',
+                    ax: 0,
+                    ay: -40,
+                    font: {
+                        size: 11,
+                        color: '#8B0000',
+                        family: 'Arial Black'
+                    },
+                    bgcolor: 'white',
+                    bordercolor: '#8B0000',
+                    borderwidth: 2
+                });
+                
+                // Dimensão B inferior (base/fundo)
+                annotations.push({
+                    x: -aInf/2 - offsetMult * 0.5,
+                    y: 0,
+                    z: 0,
+                    text: `b (fundo) = ${formatNumber(bInf)}m`,
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#006400',
+                    ax: -40,
+                    ay: 0,
+                    font: {
+                        size: 11,
+                        color: '#006400',
+                        family: 'Arial Black'
+                    },
+                    bgcolor: 'white',
+                    bordercolor: '#006400',
+                    borderwidth: 2
+                });
+                
+                // Dimensão A superior (nível da água)
+                annotations.push({
+                    x: 0,
+                    y: bSup/2 + offsetMult * 0.5,
+                    z: h,
+                    text: `A (nível água) = ${formatNumber(aSup)}m`,
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#8B0000',
+                    ax: 0,
+                    ay: -40,
+                    font: {
+                        size: 11,
+                        color: '#8B0000',
+                        family: 'Arial Black'
+                    },
+                    bgcolor: 'white',
+                    bordercolor: '#8B0000',
+                    borderwidth: 2
+                });
+                
+                // Dimensão B superior (nível da água)
+                annotations.push({
+                    x: aSup/2 + offsetMult * 0.5,
+                    y: 0,
+                    z: h,
+                    text: `B (nível água) = ${formatNumber(bSup)}m`,
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#006400',
+                    ax: 40,
+                    ay: 0,
+                    font: {
+                        size: 11,
+                        color: '#006400',
+                        family: 'Arial Black'
+                    },
+                    bgcolor: 'white',
+                    bordercolor: '#006400',
+                    borderwidth: 2
+                });
+                
+                // Altura do talude principal
+                annotations.push({
+                    x: aSup/2 + offsetMult * 0.3,
+                    y: bSup/2 + offsetMult * 0.3,
+                    z: h/2,
+                    text: `Altura = ${formatNumber(h)}m`,
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowsize: 1,
+                    arrowwidth: 2,
+                    arrowcolor: '#00008B',
+                    ax: 30,
+                    ay: 30,
+                    font: {
+                        size: 11,
+                        color: '#00008B',
+                        family: 'Arial Black'
+                    },
+                    bgcolor: 'white',
+                    bordercolor: '#00008B',
+                    borderwidth: 2
+                });
+                
+                if (borda > 0) {
+                    // Dimensão A' da borda livre (topo)
+                    annotations.push({
+                        x: 0,
+                        y: bBordaSup/2 + offsetMult * 0.7,
+                        z: h + borda,
+                        text: `A' (borda livre) = ${formatNumber(aBordaSup)}m`,
+                        showarrow: true,
+                        arrowhead: 2,
+                        arrowsize: 1,
+                        arrowwidth: 2,
+                        arrowcolor: '#CC6600',
+                        ax: 0,
+                        ay: -40,
+                        font: {
+                            size: 11,
+                            color: '#CC6600',
+                            family: 'Arial Black'
+                        },
+                        bgcolor: 'white',
+                        bordercolor: '#CC6600',
+                        borderwidth: 2
+                    });
+                    
+                    // Dimensão B' da borda livre (topo)
+                    annotations.push({
+                        x: aBordaSup/2 + offsetMult * 0.7,
+                        y: 0,
+                        z: h + borda,
+                        text: `B' (borda livre) = ${formatNumber(bBordaSup)}m`,
+                        showarrow: true,
+                        arrowhead: 2,
+                        arrowsize: 1,
+                        arrowwidth: 2,
+                        arrowcolor: '#996600',
+                        ax: 40,
+                        ay: 0,
+                        font: {
+                            size: 11,
+                            color: '#996600',
+                            family: 'Arial Black'
+                        },
+                        bgcolor: 'white',
+                        bordercolor: '#996600',
+                        borderwidth: 2
+                    });
+                    
+                    // Altura da borda livre
+                    annotations.push({
+                        x: -aSup/2 - offsetMult * 0.3,
+                        y: -bSup/2 - offsetMult * 0.3,
+                        z: h + borda/2,
+                        text: `h (borda) = ${formatNumber(borda)}m`,
+                        showarrow: true,
+                        arrowhead: 2,
+                        arrowsize: 1,
+                        arrowwidth: 2,
+                        arrowcolor: '#FF8C00',
+                        ax: -30,
+                        ay: -30,
+                        font: {
+                            size: 11,
+                            color: '#FF8C00',
+                            family: 'Arial Black'
+                        },
+                        bgcolor: 'white',
+                        bordercolor: '#FF8C00',
+                        borderwidth: 2
+                    });
+                }
+                
+                const layout = {
+                    title: {
+                        text: `<b>Visualização 3D do Talude</b><br><span style="font-size:14px">Volume Total: ${formatNumber(volumeTotal)} m³</span>`,
+                        font: { size: 18 }
+                    },
+                    scene: {
+                        xaxis: { 
+                            title: 'Eixo X (m)',
+                            gridcolor: '#ddd',
+                            showbackground: true,
+                            backgroundcolor: '#f9f9f9'
+                        },
+                        yaxis: { 
+                            title: 'Eixo Y (m)',
+                            gridcolor: '#ddd',
+                            showbackground: true,
+                            backgroundcolor: '#f9f9f9'
+                        },
+                        zaxis: { 
+                            title: 'Altura Z (m)',
+                            gridcolor: '#ddd',
+                            showbackground: true,
+                            backgroundcolor: '#f9f9f9'
+                        },
+                        camera: {
+                            eye: { x: 1.5, y: 1.5, z: 1.2 },
+                            center: { x: 0, y: 0, z: 0 }
+                        },
+                        aspectmode: 'manual',
+                        aspectratio: { x: 1, y: 1, z: 0.7 },
+                        annotations: annotations
+                    },
+                    showlegend: true,
+                    legend: {
+                        x: 0.02,
+                        y: 0.98,
+                        bgcolor: 'rgba(255,255,255,0.9)',
+                        bordercolor: '#333',
+                        borderwidth: 1
+                    },
+                    hovermode: 'closest',
+                    paper_bgcolor: '#ffffff',
+                    plot_bgcolor: '#f9f9f9'
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    modeBarButtonsToRemove: ['toImage'],
+                    displaylogo: false
+                };
+                
+                Plotly.newPlot('plotly-container', data, layout, config);
+                
+                // Atualizar estatísticas
+                document.getElementById('volumeTotal').textContent = formatNumber(volumeTotal) + ' m³';
+                document.getElementById('volumePrincipal').textContent = formatNumber(volumePrincipal) + ' m³';
+                document.getElementById('volumeBorda').textContent = formatNumber(volumeBorda) + ' m³';
+                document.getElementById('baseInferior').textContent = formatNumber(aInf) + ' × ' + formatNumber(bInf) + ' m';
+                document.getElementById('topoSuperior').textContent = formatNumber(aSup) + ' × ' + formatNumber(bSup) + ' m';
+                document.getElementById('topoBorda').textContent = borda > 0 ? formatNumber(aBordaSup) + ' × ' + formatNumber(bBordaSup) + ' m' : 'N/A';
+                document.getElementById('stats').style.display = 'block';
+                
+                document.getElementById('infoBox').className = 'info-box';
+                document.getElementById('infoBox').innerHTML = `✅ <b>Modelo gerado com sucesso!</b><br>Base inferior: ${formatNumber(aInf)}m × ${formatNumber(bInf)}m | Topo: ${formatNumber(aSup)}m × ${formatNumber(bSup)}m`;
+                
+            } catch (error) {
+                console.error(error);
+                mostrarErro('Erro: Insira valores numéricos válidos!');
+            }
+        }
+        
+        function mostrarErro(mensagem) {
+            document.getElementById('infoBox').className = 'info-box error';
+            document.getElementById('infoBox').textContent = mensagem;
+            document.getElementById('stats').style.display = 'none';
+        }
+        
+        // Permitir atualização com Enter
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    atualizarGrafico();
+                }
+            });
+        });
+        
+        // Gerar visualização inicial ao carregar
+        window.addEventListener('load', () => {
+            // Aguardar o Plotly carregar completamente
+            if (typeof Plotly !== 'undefined') {
+                atualizarGrafico();
+            } else {
+                setTimeout(() => atualizarGrafico(), 500);
+            }
+        });
+    </script>
+    
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+</body>
+</html>
