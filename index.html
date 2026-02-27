@@ -714,7 +714,7 @@
                 document.getElementById('baseInferior').textContent = formatNumber(aInf) + ' × ' + formatNumber(bInf) + ' = ' + formatNumber(aInf * bInf) + ' m²';
                 document.getElementById('topoSuperior').textContent = formatNumber(aSup) + ' × ' + formatNumber(bSup) + ' = ' + formatNumber(aSup * bSup) + ' m²';
                 document.getElementById('topoBorda').textContent = borda > 0 ? formatNumber(aBordaSup) + ' × ' + formatNumber(bBordaSup) + ' = ' + formatNumber(aBordaSup * bBordaSup) + ' m²' : 'N/A';
-                document.getElementById('formula').textContent = `V = (${(h)}/3) × (${formatNumber(aSup * bSup)} + ${formatNumber(aInf * bInf)} + √(${formatNumber(aSup * bSup)} × ${formatNumber(aInf * bInf)})) = ${formatNumber(volumePrincipal)} m³`;
+                document.getElementById('formula').textContent = `V = (${formatNumber(h)}/3) × (${formatNumber(aSup * bSup)} + ${formatNumber(aInf * bInf)} + √(${formatNumber(aSup * bSup)} × ${formatNumber(aInf * bInf)})) = ${formatNumber(volumePrincipal)} m³`;
                 document.getElementById('stats').style.display = 'block';
                 
                 document.getElementById('infoBox').className = 'info-box';
