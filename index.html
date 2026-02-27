@@ -213,12 +213,12 @@
         <div class="content">
             <div class="controls">
                 <div class="control-group">
-                    <label for="ladoA">Lado A - Nível da Água (m):</label>
+                    <label for="ladoA">Lado A (Nível da Água - em metros):</label>
                     <input type="text" id="ladoA" value="4,0">
                 </div>
                 
                 <div class="control-group">
-                    <label for="ladoB">Lado B - Nível da Água (m):</label>
+                    <label for="ladoB">Lado B (Nível da Água - em metros):</label>
                     <input type="text" id="ladoB" value="4,0">
                 </div>
                 
@@ -255,24 +255,29 @@
                             <span class="stats-value" id="volumeTotal">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label">Volume útil (sem a borda)</span>
+                            <span class="stats-label" ><b>Volume útil (sem a borda)</b></span>
                             <span class="stats-value" id="volumePrincipal">-</span>
                         </div>
                         <div class="stats-item">
                             <span class="stats-label">Volume da Borda Livre</span>
-                            <span class="stats-value" id="volumeBorda">-</span>
+                            <span class="stats-value" id="volumeBorda">-</span> 
+                            
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label">Área da Base Inferior (fundo)</span>
+                            <span class="stats-label"><b>Área da Base Inferior - fundo (A2)</b></span>
                             <span class="stats-value" id="baseInferior">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label">Área do Nível da Água</span>
+                            <span class="stats-label"><b>Área do Nível da Água (A1)</b></span>
                             <span class="stats-value" id="topoSuperior">-</span>
                         </div>
                         <div class="stats-item">
                             <span class="stats-label">Área do topo</span>
                             <span class="stats-value" id="topoBorda">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label"><b>Fórmula - V = (h/3) * (A1 + A2 + √(A1×A2))</b></span>
+                            <span class="stats-value" id="formula">-</span>
                         </div>
                     </div>
                 </div>
@@ -706,9 +711,10 @@
                 document.getElementById('volumeTotal').textContent = formatNumber(volumeTotal) + ' m³';
                 document.getElementById('volumePrincipal').textContent = formatNumber(volumePrincipal) + ' m³';
                 document.getElementById('volumeBorda').textContent = formatNumber(volumeBorda) + ' m³';
-                document.getElementById('baseInferior').textContent = formatNumber(aInf) + ' × ' + formatNumber(bInf) + ' m';
-                document.getElementById('topoSuperior').textContent = formatNumber(aSup) + ' × ' + formatNumber(bSup) + ' m';
-                document.getElementById('topoBorda').textContent = borda > 0 ? formatNumber(aBordaSup) + ' × ' + formatNumber(bBordaSup) + ' m' : 'N/A';
+                document.getElementById('baseInferior').textContent = formatNumber(aInf) + ' × ' + formatNumber(bInf) + ' = ' + formatNumber(aInf * bInf) + ' m²';
+                document.getElementById('topoSuperior').textContent = formatNumber(aSup) + ' × ' + formatNumber(bSup) + ' = ' + formatNumber(aSup * bSup) + ' m²';
+                document.getElementById('topoBorda').textContent = borda > 0 ? formatNumber(aBordaSup) + ' × ' + formatNumber(bBordaSup) + ' = ' + formatNumber(aBordaSup * bBordaSup) + ' m²' : 'N/A';
+                document.getElementById('formula').textContent = `V = (h/3) × (${formatNumber(aSup * bSup)} + ${formatNumber(aInf * bInf)} + √(${formatNumber(aSup * bSup)} × ${formatNumber(aInf * bInf)})) = ${formatNumber(volumePrincipal)} m³`;
                 document.getElementById('stats').style.display = 'block';
                 
                 document.getElementById('infoBox').className = 'info-box';
