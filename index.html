@@ -279,6 +279,14 @@
                             <span class="stats-label" style="color: blue;"><b>Fórmula do volume útil: V = (h/3) * (A1 + A2 + √(A1×A2))</b></span>
                             <span class="stats-value" id="formula">-</span>
                         </div>
+                        <div class="stats-item">
+                            <span class="stats-label" style="color: blue;"><b>Altura</b></span>
+                            <span class="stats-value" id="alturaValue">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label" style="color: blue;"><b>Borda Livre</b></span>
+                            <span class="stats-value" id="bordaLivreValue">-</span>
+                        </div>
                     </div>
                 </div>
                 <div id="plotly-container"></div>
@@ -715,6 +723,8 @@
                 document.getElementById('topoSuperior').textContent = formatNumber(aSup) + ' × ' + formatNumber(bSup) + ' = ' + formatNumber(aSup * bSup) + ' m²';
                 document.getElementById('topoBorda').textContent = borda > 0 ? formatNumber(aBordaSup) + ' × ' + formatNumber(bBordaSup) + ' = ' + formatNumber(aBordaSup * bBordaSup) + ' m²' : 'N/A';
                 document.getElementById('formula').textContent = `V = (${formatNumber(h)}/3) × (${formatNumber(aSup * bSup)} + ${formatNumber(aInf * bInf)} + √(${formatNumber(aSup * bSup)} × ${formatNumber(aInf * bInf)})) = ${formatNumber(volumePrincipal)} m³`;
+                document.getElementById('alturaValue').textContent = formatNumber(h) + ' m';
+                document.getElementById('bordaLivreValue').textContent = formatNumber(borda) + ' m';
                 document.getElementById('stats').style.display = 'block';
                 
                 document.getElementById('infoBox').className = 'info-box';
