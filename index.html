@@ -156,7 +156,7 @@
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: 1fr;
             gap: 12px;
         }
         
@@ -213,12 +213,12 @@
         <div class="content">
             <div class="controls">
                 <div class="control-group">
-                    <label for="ladoA">Lado A (Nível da Água - em metros):</label>
+                    <label for="ladoA">L (Nível da Água - em metros):</label>
                     <input type="text" id="ladoA" value="4,0">
                 </div>
                 
                 <div class="control-group">
-                    <label for="ladoB">Lado B (Nível da Água - em metros):</label>
+                    <label for="ladoB">B (Nível da Água - em metros):</label>
                     <input type="text" id="ladoB" value="4,0">
                 </div>
                 
@@ -255,29 +255,25 @@
                             <span class="stats-value" id="volumeTotal">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Volume útil (sem a borda)</b></span>
-                            <span class="stats-value" id="volumePrincipal">-</span>
-                        </div>
-                        <div class="stats-item">
-                            <span class="stats-label">Volume da Borda Livre</span>
+                            <span class="stats-label">Volume somente da Borda Livre</span>
                             <span class="stats-value" id="volumeBorda">-</span> 
                             
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Fundo (A2)</b></span>
-                            <span class="stats-value" id="baseInferior">-</span>
+                            <span class="stats-label" style="color: blue;"><b>Volume útil (sem a borda)</b></span>
+                            <span class="stats-value" id="volumePrincipal">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label">Topo</span>
+                            <span class="stats-value" id="topoBorda">-</span>
                         </div>
                         <div class="stats-item">
                             <span class="stats-label" style="color: blue;"><b>Nível da Água (A1)</b></span>
                             <span class="stats-value" id="topoSuperior">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label">Crista</span>
-                            <span class="stats-value" id="topoBorda">-</span>
-                        </div>
-                        <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Fórmula do volume útil: V = (h/3) * (A1 + A2 + √(A1×A2))</b></span>
-                            <span class="stats-value" id="formula">-</span>
+                            <span class="stats-label" style="color: blue;"><b>Fundo (A2)</b></span>
+                            <span class="stats-value" id="baseInferior">-</span>
                         </div>
                         <div class="stats-item">
                             <span class="stats-label" style="color: blue;"><b>Altura</b></span>
@@ -286,6 +282,10 @@
                         <div class="stats-item">
                             <span class="stats-label" style="color: blue;"><b>Borda Livre</b></span>
                             <span class="stats-value" id="bordaLivreValue">-</span>
+                        </div>
+                        <div class="stats-item">
+                            <span class="stats-label" style="color: blue;"><b>Fórmula do volume útil: V = (h/3) * (A1 + A2 + √(A1×A2))</b></span>
+                            <span class="stats-value" id="formula">-</span>
                         </div>
                     </div>
                 </div>
