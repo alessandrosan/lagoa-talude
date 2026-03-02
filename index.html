@@ -306,7 +306,8 @@
         function calcularBaseInferior(ladoSup, altura, proporcao) {
             const reducaoTotal = altura * proporcao;
             const ladoInf = ladoSup - (2 * reducaoTotal);
-            return Math.max(ladoInf, 0.1);
+            //return Math.max(ladoInf, 0.1);
+            return ladoInf;
         }
         
         function criarMalha(vertices) {
