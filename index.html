@@ -255,36 +255,31 @@
                             <span class="stats-value" id="volumeTotal">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label">Volume somente da Borda Livre</span>
-                            <span class="stats-value" id="volumeBorda">-</span> 
-                            
-                        </div>
-                        <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Volume útil (sem a borda)</b></span>
+                            <span class="stats-label" style="color: blue;"><b>Volume útil</b></span>
                             <span class="stats-value" id="volumePrincipal">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label">Topo</span>
+                            <span class="stats-label" style="color: black;"><b>Topo</b></span>
                             <span class="stats-value" id="topoBorda">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Nível da Água (A1)</b></span>
+                            <span class="stats-label" style="color: black;"> <b>Nível da Água (A1)</b></span>
                             <span class="stats-value" id="topoSuperior">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Fundo (A2)</b></span>
+                            <span class="stats-label" style="color: black;"><b>Fundo (A2)</b></span>
                             <span class="stats-value" id="baseInferior">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Altura</b></span>
+                            <span class="stats-label"><b>Altura</b></span>
                             <span class="stats-value" id="alturaValue">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Borda Livre</b></span>
+                            <span class="stats-label"><b>Borda Livre</b></span>
                             <span class="stats-value" id="bordaLivreValue">-</span>
                         </div>
                         <div class="stats-item">
-                            <span class="stats-label" style="color: blue;"><b>Fórmula do volume útil: V = (h/3) * (A1 + A2 + √(A1×A2))</b></span>
+                            <span class="stats-label"><b>Fórmula do volume útil: V = (h/3) * (A1 + A2 + √(A1×A2))</b></span>
                             <span class="stats-value" id="formula">-</span>
                         </div>
                     </div>
@@ -719,7 +714,7 @@
                 // Atualizar estatísticas
                 document.getElementById('volumeTotal').textContent = formatNumber(volumeTotal) + ' m³';
                 document.getElementById('volumePrincipal').textContent = formatNumber(volumePrincipal) + ' m³';
-                document.getElementById('volumeBorda').textContent = formatNumber(volumeBorda) + ' m³';
+                //document.getElementById('volumeBorda').textContent = formatNumber(volumeBorda) + ' m³';
                 document.getElementById('baseInferior').textContent = formatNumber(aInf) + ' × ' + formatNumber(bInf) + ' = ' + formatNumber(aInf * bInf) + ' m²';
                 document.getElementById('topoSuperior').textContent = formatNumber(aSup) + ' × ' + formatNumber(bSup) + ' = ' + formatNumber(aSup * bSup) + ' m²';
                 document.getElementById('topoBorda').textContent = borda > 0 ? formatNumber(aBordaSup) + ' × ' + formatNumber(bBordaSup) + ' = ' + formatNumber(aBordaSup * bBordaSup) + ' m²' : 'N/A';
